@@ -1,61 +1,46 @@
-from flask import Flask, request, send_file, render_template
-from PIL import Image
+from flask import Flask, render_template, request, send_file
 import os
-import uuid
+import tempfile
+from PIL import Image
 import moviepy.editor as mp
 
 app = Flask(__name__)
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-@app.route('/convert_image', methods=['POST'])
-def convert_image():
-    img = request.files['image']
-    target_format = request.form['format'].lower()
-    width = request.form.get('width', type=int)
-    height = request.form.get('height', type=int)
+@app.route("/convert", methods=["POST"])
+def convert():
+    file = request.files.get("file")
+    convert_type = request.form.get("convert_type")
 
-    filename = f"{uuid.uuid4()}.{target_format}"
-    path = os.path.join(UPLOAD_FOLDER, filename)
+    if not file:
+        return "No file uploaded.", 400
 
-    image = Image.open(img)
-    if width and height:
-        image = image.resize((width, height))
+    if convert_type == "image":
+        output_format = request.form.get("image_format")
+        width = request.form.get("width")
+        height = request.form.get("height")
 
-    if target_format == 'jpg':
-        target_format = 'JPEG'
+        img = Image.open(file)
+        if width and height:
+            img = img.resize((int(width), int(height)))
+
+        output_file = tempfile.NamedTemporaryFile(delete=False, suffix=f".{output_format}")
+        img.save(output_file.name)
+        return send_file(output_file.name, as_attachment=True)
+
+    elif convert_type == "video":
+        output_format = request.form.get("video_format")
+
+        video = mp.VideoFileClip(file.stream)
+        output_file = tempfile.NamedTemporaryFile(delete=False, suffix=f".{output_format}")
+        video.write_videofile(output_file.name, codec="libx264")
+        return send_file(output_file.name, as_attachment=True)
+
     else:
-        target_format = target_format.upper()
+        return "Unsupported conversion type", 400
 
-    image.save(path, target_format)
-    return send_file(path, as_attachment=True)
-
-@app.route("/convert_tg_image", methods=["POST"])
-def convert_tg_image():
-    file = request.files["image"]
-    img = Image.open(file.stream).convert("RGBA")
-    img.thumbnail((512, 512))
-    filename = f"{uuid.uuid4()}.webp"
-    path = os.path.join(UPLOAD_FOLDER, filename)
-    img.save(path, "WEBP")
-    return send_file(path, as_attachment=True)
-
-@app.route("/convert_tg_video", methods=["POST"])
-def convert_tg_video():
-    file = request.files["video"]
-    input_path = os.path.join(UPLOAD_FOLDER, f"{uuid.uuid4()}.mp4")
-    output_path = os.path.join(UPLOAD_FOLDER, f"{uuid.uuid4()}.webm")
-    file.save(input_path)
-
-    clip = mp.VideoFileClip(input_path)
-    clip = clip.subclip(0, min(3, clip.duration))
-    clip_resized = clip.resize(height=512 if clip.h > clip.w else None, width=512 if clip.w >= clip.h else None)
-    clip_resized.write_videofile(output_path, codec="libvpx", audio=False)
-    return send_file(output_path, as_attachment=True)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
