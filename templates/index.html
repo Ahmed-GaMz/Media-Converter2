@@ -1,58 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Media Converter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f1f1;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            background: #fff;
-            padding: 20px;
-            margin: 20px auto;
-            display: inline-block;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input, select {
-            margin: 10px;
-        }
-    </style>
+    <title>Image Converter</title>
 </head>
 <body>
-    <h1>Image Converter</h1>
+    <h2>🖼️ تحويل الصور</h2>
     <form action="/convert_image" method="post" enctype="multipart/form-data">
-        <input type="file" name="image">
+        <label>اختر صورة:</label><br>
+        <input type="file" name="image" required><br><br>
+
+        <label>اختر الصيغة:</label><br>
         <select name="format">
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>
             <option value="webp">WEBP</option>
-        </select>
-        <br>
-        <label>Resize (اختياري):</label><br>
-        Width: <input type="number" name="width" min="1">
-        Height: <input type="number" name="height" min="1">
-        <br><br>
-        <button type="submit">Convert</button>
-    </form>
+            <option value="bmp">BMP</option>
+            <option value="tiff">TIFF</option>
+            <option value="gif">GIF</option>
+        </select><br><br>
 
-    <h1>Video Converter</h1>
-    <form action="/convert_video" method="post" enctype="multipart/form-data">
-        <input type="file" name="video">
-        <select name="format">
-            <option value="mp4">MP4</option>
-            <option value="webm">WEBM</option>
-            <option value="avi">AVI</option>
-        </select>
-        <br><br>
-        <button type="submit">Convert</button>
+        <label>عرض (اختياري):</label><br>
+        <input type="number" name="width" placeholder="مثلاً 800"><br><br>
+
+        <label>ارتفاع (اختياري):</label><br>
+        <input type="number" name="height" placeholder="مثلاً 600"><br><br>
+
+        <button type="submit">تحويل الصورة</button>
     </form>
 </body>
 </html>
