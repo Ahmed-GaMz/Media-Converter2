@@ -1,46 +1,72 @@
 from flask import Flask, render_template, request, send_file
-import os
-import tempfile
 from PIL import Image
-import moviepy.editor as mp
+from moviepy.editor import VideoFileClip
+import os
+from io import BytesIO
 
 app = Flask(__name__)
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
 @app.route("/convert", methods=["POST"])
 def convert():
-    file = request.files.get("file")
-    convert_type = request.form.get("convert_type")
+    file = request.files["file"]
+    output_format = request.form.get("output_format")
+    width = request.form.get("width", type=int)
+    height = request.form.get("height", type=int)
 
-    if not file:
-        return "No file uploaded.", 400
+    filename = file.filename
+    name, ext = os.path.splitext(filename)
+    ext = ext.lower()
 
-    if convert_type == "image":
-        output_format = request.form.get("image_format")
-        width = request.form.get("width")
-        height = request.form.get("height")
+    output = BytesIO()
 
-        img = Image.open(file)
+    if ext in [".jpg", ".jpeg", ".png", ".webp"]:
+        image = Image.open(file)
         if width and height:
-            img = img.resize((int(width), int(height)))
+            image = image.resize((width, height))
+        image.save(output, format=output_format.upper())
+        output.seek(0)
+        return send_file(output, mimetype=f"image/{output_format}", as_attachment=True, download_name=f"{name}.{output_format}")
 
-        output_file = tempfile.NamedTemporaryFile(delete=False, suffix=f".{output_format}")
-        img.save(output_file.name)
-        return send_file(output_file.name, as_attachment=True)
-
-    elif convert_type == "video":
-        output_format = request.form.get("video_format")
-
-        video = mp.VideoFileClip(file.stream)
-        output_file = tempfile.NamedTemporaryFile(delete=False, suffix=f".{output_format}")
-        video.write_videofile(output_file.name, codec="libx264")
-        return send_file(output_file.name, as_attachment=True)
+    elif ext in [".mp4", ".mov", ".avi"]:
+        clip = VideoFileClip(file.filename)
+        clip.write_videofile(f"/tmp/{name}.{output_format}")
+        return send_file(f"/tmp/{name}.{output_format}", as_attachment=True)
 
     else:
-        return "Unsupported conversion type", 400
+        return "Unsupported file type", 400
+
+@app.route("/telegram_convert", methods=["POST"])
+def telegram_convert():
+    file = request.files["file"]
+    filename = file.filename
+    name, ext = os.path.splitext(filename)
+    ext = ext.lower()
+
+    output = BytesIO()
+
+    if ext in [".jpg", ".jpeg", ".png"]:
+        image = Image.open(file)
+        image.thumbnail((512, 512))
+        image.save(output, format="WEBP")
+        output.seek(0)
+        return send_file(output, mimetype="image/webp", as_attachment=True, download_name=f"{name}.webp")
+
+    elif ext in [".mp4", ".mov", ".avi"]:
+        path = f"/tmp/{name}"
+        input_path = f"{path}{ext}"
+        output_path = f"{path}_tg.webm"
+        file.save(input_path)
+
+        clip = VideoFileClip(input_path).subclip(0, 3)
+        clip.write_videofile(output_path, codec="libvpx", audio_codec="libvorbis", fps=24)
+        return send_file(output_path, as_attachment=True)
+
+    else:
+        return "Unsupported file type for Telegram", 400
 
 if __name__ == "__main__":
     app.run(debug=True)
