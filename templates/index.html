@@ -1,73 +1,114 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>محول الوسائط</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    label, select, input {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
+  <div class="container">
+    <h1>Media Converter</h1>
+    <form id="convert-form" action="/convert" method="post" enctype="multipart/form-data">
+      <label for="file">اختر الملف:</label>
+      <input type="file" name="file" required>
 
-  <div class="container py-5">
-    <div class="text-center mb-5">
-      <h1 class="fw-bold">🎥🖼️ محول الوسائط</h1>
-      <p class="text-muted">حول الصور والفيديوهات بسهولة، يدعم تهيئة ملفات تليجرام</p>
-    </div>
+      <label for="convert_type">نوع التحويل:</label>
+      <select name="convert_type" id="convert_type" required>
+        <option value="">-- اختر --</option>
+        <option value="image">صورة</option>
+        <option value="video">فيديو</option>
+      </select>
 
-    <form action="/convert" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
-      <div class="mb-3">
-        <label for="section" class="form-label">اختر القسم</label>
-        <select name="section" class="form-select" id="section">
-          <option value="custom">قسم التحويل المخصص (Custom)</option>
-          <option value="telegram">قسم تليجرام (Telegram Tools)</option>
+      <div id="image-options" class="hidden">
+        <label for="image_format">صيغة الصورة:</label>
+        <select name="image_format">
+          <option value="png">PNG</option>
+          <option value="jpg">JPG</option>
+          <option value="webp">WEBP</option>
+        </select>
+
+        <label for="width">العرض (اختياري):</label>
+        <input type="number" name="width" placeholder="مثلاً 512">
+
+        <label for="height">الطول (اختياري):</label>
+        <input type="number" name="height" placeholder="مثلاً 512">
+      </div>
+
+      <div id="video-options" class="hidden">
+        <label for="video_format">صيغة الفيديو:</label>
+        <select name="video_format">
+          <option value="mp4">MP4</option>
+          <option value="webm">WEBM</option>
         </select>
       </div>
 
-      <!-- خيارات custom -->
-      <div id="custom-options" style="display: none;">
-        <div class="mb-3">
-          <label for="format" class="form-label">صيغة التحويل</label>
-          <select name="format" class="form-select" id="format">
-            <option value="png">PNG</option>
-            <option value="jpg">JPG</option>
-            <option value="webp">WEBP</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="width" class="form-label">العرض (اختياري)</label>
-          <input type="number" name="width" class="form-control" id="width">
-        </div>
-        <div class="mb-3">
-          <label for="height" class="form-label">الارتفاع (اختياري)</label>
-          <input type="number" name="height" class="form-control" id="height">
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label for="file" class="form-label">اختر الملف</label>
-        <input type="file" name="file" class="form-control" id="file" required>
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100">🚀 تحويل الآن</button>
+      <button type="submit">تحويل</button>
     </form>
   </div>
 
-  <!-- سكربت لإظهار خيارات custom عند الحاجة -->
   <script>
-    const sectionSelect = document.getElementById("section");
-    const customOptions = document.getElementById("custom-options");
+    const convertType = document.getElementById("convert_type");
+    const imageOptions = document.getElementById("image-options");
+    const videoOptions = document.getElementById("video-options");
 
-    function toggleOptions() {
-      if (sectionSelect.value === "custom") {
-        customOptions.style.display = "block";
+    convertType.addEventListener("change", function () {
+      if (this.value === "image") {
+        imageOptions.classList.remove("hidden");
+        videoOptions.classList.add("hidden");
+      } else if (this.value === "video") {
+        videoOptions.classList.remove("hidden");
+        imageOptions.classList.add("hidden");
       } else {
-        customOptions.style.display = "none";
+        imageOptions.classList.add("hidden");
+        videoOptions.classList.add("hidden");
       }
-    }
-
-    sectionSelect.addEventListener("change", toggleOptions);
-    window.addEventListener("load", toggleOptions);
+    });
   </script>
-
 </body>
 </html>
