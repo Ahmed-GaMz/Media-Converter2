@@ -1,31 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>Image Converter</title>
+    <meta charset="UTF-8" />
+    <title>Media Converter</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; }
+        section { margin-bottom: 40px; }
+        label, select, input, button { margin: 5px 0; display: block; }
+        input[type="file"] { margin-top: 10px; }
+        button { padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
 </head>
 <body>
-    <h2>🖼️ تحويل الصور</h2>
-    <form action="/convert_image" method="post" enctype="multipart/form-data">
-        <label>اختر صورة:</label><br>
-        <input type="file" name="image" required><br><br>
 
-        <label>اختر الصيغة:</label><br>
-        <select name="format">
+<h1>موقع تحويل الملفات</h1>
+
+<section id="custom">
+    <h2>تحويل عام (Custom)</h2>
+    <form id="customForm" method="post" enctype="multipart/form-data" action="/convert_image">
+        <label>اختر صورة لتحويلها:</label>
+        <input type="file" name="image" accept="image/*" required />
+        
+        <label>اختر صيغة التحويل:</label>
+        <select name="format" required>
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>
             <option value="webp">WEBP</option>
-            <option value="bmp">BMP</option>
-            <option value="tiff">TIFF</option>
-            <option value="gif">GIF</option>
-        </select><br><br>
+            <option value="jpg">JPG</option>
+        </select>
 
-        <label>عرض (اختياري):</label><br>
-        <input type="number" name="width" placeholder="مثلاً 800"><br><br>
+        <label>العرض (بالبكسل):</label>
+        <input type="number" name="width" min="1" placeholder="مثلاً 512" />
 
-        <label>ارتفاع (اختياري):</label><br>
-        <input type="number" name="height" placeholder="مثلاً 600"><br><br>
+        <label>الارتفاع (بالبكسل):</label>
+        <input type="number" name="height" min="1" placeholder="مثلاً 512" />
 
         <button type="submit">تحويل الصورة</button>
     </form>
+</section>
+
+<section id="telegram">
+    <h2>أدوات تلغرام (Telegram Tools)</h2>
+
+    <h3>تحويل صورة لتناسب ستكرات تلغرام (WEBP 512x512)</h3>
+    <form id="tgImageForm" method="post" enctype="multipart/form-data" action="/convert_tg_image">
+        <input type="file" name="image" accept="image/*" required />
+        <button type="submit">تحويل صورة التلغرام</button>
+    </form>
+
+    <h3>تحويل فيديو لتناسب فيديوهات تلغرام (3 ثواني، أبعاد مناسبة)</h3>
+    <form id="tgVideoForm" method="post" enctype="multipart/form-data" action="/convert_tg_video">
+        <input type="file" name="video" accept="video/*" required />
+        <button type="submit">تحويل فيديو التلغرام</button>
+    </form>
+</section>
+
 </body>
 </html>
