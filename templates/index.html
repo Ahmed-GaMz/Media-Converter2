@@ -1,60 +1,59 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <title>Media Converter</title>
+    <title>محول الوسائط</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; }
-        section { margin-bottom: 40px; }
-        label, select, input, button { margin: 5px 0; display: block; }
-        input[type="file"] { margin-top: 10px; }
-        button { padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; }
+        h2 { color: #333; }
+        form { margin-top: 10px; }
+        input, select, button { margin: 5px 0; padding: 8px; width: 200px; }
     </style>
 </head>
 <body>
+    <h1>محول الوسائط</h1>
 
-<h1>موقع تحويل الملفات</h1>
+    <div class="section">
+        <h2>تحويل الصور (Custom)</h2>
+        <form action="/convert_image" method="post" enctype="multipart/form-data">
+            <label>اختر صورة:</label><br />
+            <input type="file" name="image" required /><br />
+            <label>صيغة التحويل:</label><br />
+            <select name="format" required>
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WEBP</option>
+                <option value="jpg">JPG</option>
+            </select><br />
+            <label>العرض (اختياري):</label><br />
+            <input type="number" name="width" min="1" /><br />
+            <label>الارتفاع (اختياري):</label><br />
+            <input type="number" name="height" min="1" /><br />
+            <button type="submit">تحويل</button>
+        </form>
+    </div>
 
-<section id="custom">
-    <h2>تحويل عام (Custom)</h2>
-    <form id="customForm" method="post" enctype="multipart/form-data" action="/convert_image">
-        <label>اختر صورة لتحويلها:</label>
-        <input type="file" name="image" accept="image/*" required />
-        
-        <label>اختر صيغة التحويل:</label>
-        <select name="format" required>
-            <option value="png">PNG</option>
-            <option value="jpeg">JPEG</option>
-            <option value="webp">WEBP</option>
-            <option value="jpg">JPG</option>
-        </select>
+    <hr/>
 
-        <label>العرض (بالبكسل):</label>
-        <input type="number" name="width" min="1" placeholder="مثلاً 512" />
+    <div class="section">
+        <h2>تحويل صور تلغرام (Telegram Image)</h2>
+        <form action="/convert_tg_image" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" required />
+            <button type="submit">رفع وتحويل تلقائي</button>
+        </form>
+        <p>يتم تحويل الصور إلى WEBP وأبعاد تصل حتى 512x512 تلقائياً.</p>
+    </div>
 
-        <label>الارتفاع (بالبكسل):</label>
-        <input type="number" name="height" min="1" placeholder="مثلاً 512" />
+    <hr/>
 
-        <button type="submit">تحويل الصورة</button>
-    </form>
-</section>
-
-<section id="telegram">
-    <h2>أدوات تلغرام (Telegram Tools)</h2>
-
-    <h3>تحويل صورة لتناسب ستكرات تلغرام (WEBP 512x512)</h3>
-    <form id="tgImageForm" method="post" enctype="multipart/form-data" action="/convert_tg_image">
-        <input type="file" name="image" accept="image/*" required />
-        <button type="submit">تحويل صورة التلغرام</button>
-    </form>
-
-    <h3>تحويل فيديو لتناسب فيديوهات تلغرام (3 ثواني، أبعاد مناسبة)</h3>
-    <form id="tgVideoForm" method="post" enctype="multipart/form-data" action="/convert_tg_video">
-        <input type="file" name="video" accept="video/*" required />
-        <button type="submit">تحويل فيديو التلغرام</button>
-    </form>
-</section>
-
+    <div class="section">
+        <h2>تحويل فيديوهات تلغرام (Telegram Video)</h2>
+        <form action="/convert_tg_video" method="post" enctype="multipart/form-data">
+            <input type="file" name="video" required />
+            <button type="submit">رفع وتحويل تلقائي</button>
+        </form>
+        <p>يتم تحويل الفيديوهات إلى WEBM بمدة 3 ثواني وأبعاد تناسب تلغرام تلقائياً.</p>
+    </div>
 </body>
 </html>
