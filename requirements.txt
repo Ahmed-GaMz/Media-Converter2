@@ -2,4 +2,4 @@ flask
 pillow
 gunicorn
 moviepy==1.0.3
-ffmpeg-python
+imageio[ffmpeg]
