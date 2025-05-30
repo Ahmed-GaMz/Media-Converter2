@@ -2,3 +2,4 @@ flask
 pillow
 gunicorn
 moviepy
+ffmpeg-python
