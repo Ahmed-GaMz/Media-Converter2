@@ -2,52 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Media Converter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input[type="file"],
+    select,
+    button {
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>📂 Media Converter</h1>
-
-  <!-- زر تبديل بين القسمين -->
-  <button onclick="showTab('custom')">Custom Converter</button>
-  <button onclick="showTab('telegram')">Telegram Tools</button>
-
-  <!-- قسم Custom -->
-  <div id="custom" style="display:block;">
-    <h2>Custom Image Converter</h2>
-    <form action="/convert_image" method="post" enctype="multipart/form-data">
-      <input type="file" name="image" required><br>
-      Format: 
-      <select name="format">
-        <option value="png">PNG</option>
-        <option value="jpeg">JPEG</option>
-        <option value="webp">WEBP</option>
-      </select><br>
-      Width: <input type="number" name="width"><br>
-      Height: <input type="number" name="height"><br>
+  <div class="container">
+    <h1>Media Converter</h1>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="file" required>
+      <select name="conversion_type" required>
+        <option value="" disabled selected>Select Conversion Type</option>
+        <option value="custom">Custom</option>
+        <option value="telegram_image">Telegram Image (WEBP)</option>
+        <option value="telegram_video">Telegram Video (WEBM/MP4)</option>
+      </select>
       <button type="submit">Convert</button>
     </form>
   </div>
-
-  <!-- قسم Telegram -->
-  <div id="telegram" style="display:none;">
-    <h2>Telegram Image to WEBP</h2>
-    <form action="/convert_tg_image" method="post" enctype="multipart/form-data">
-      <input type="file" name="image" required><br>
-      <button type="submit">Upload</button>
-    </form>
-
-    <h2>Telegram Video to WEBM (3s)</h2>
-    <form action="/convert_tg_video" method="post" enctype="multipart/form-data">
-      <input type="file" name="video" required><br>
-      <button type="submit">Upload</button>
-    </form>
-  </div>
-
-  <script>
-    function showTab(tab) {
-      document.getElementById('custom').style.display = (tab === 'custom') ? 'block' : 'none';
-      document.getElementById('telegram').style.display = (tab === 'telegram') ? 'block' : 'none';
-    }
-  </script>
 </body>
 </html>
