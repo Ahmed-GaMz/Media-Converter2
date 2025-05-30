@@ -1,114 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Media Converter</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
 
-    .container {
-      max-width: 500px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 100%;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+        h1, h2 {
+            text-align: center;
+        }
 
-    h1 {
-      text-align: center;
-    }
+        form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
 
-    label, select, input {
-      display: block;
-      margin: 10px 0;
-      width: 100%;
-    }
+        label, select, input {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
 
-    button {
-      background-color: #28a745;
-      color: white;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .hidden {
+            display: none;
+        }
 
-    button:hover {
-      background-color: #218838;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Media Converter</h1>
-    <form id="convert-form" action="/convert" method="post" enctype="multipart/form-data">
-      <label for="file">اختر الملف:</label>
-      <input type="file" name="file" required>
 
-      <label for="convert_type">نوع التحويل:</label>
-      <select name="convert_type" id="convert_type" required>
-        <option value="">-- اختر --</option>
-        <option value="image">صورة</option>
-        <option value="video">فيديو</option>
-      </select>
+<h1>🛠️ Media Converter</h1>
 
-      <div id="image-options" class="hidden">
-        <label for="image_format">صيغة الصورة:</label>
-        <select name="image_format">
-          <option value="png">PNG</option>
-          <option value="jpg">JPG</option>
-          <option value="webp">WEBP</option>
-        </select>
+<!-- اختيار القسم -->
+<select id="mode-select" onchange="toggleMode()">
+    <option value="custom">تحويل مخصص (Custom)</option>
+    <option value="telegram">أدوات تلغرام (Telegram Tools)</option>
+</select>
 
-        <label for="width">العرض (اختياري):</label>
-        <input type="number" name="width" placeholder="مثلاً 512">
+<!-- قسم Custom -->
+<form id="custom-form" action="/convert" method="post" enctype="multipart/form-data">
+    <h2>تحويل مخصص</h2>
+    <label for="file">اختر ملف:</label>
+    <input type="file" name="file" required>
 
-        <label for="height">الطول (اختياري):</label>
-        <input type="number" name="height" placeholder="مثلاً 512">
-      </div>
+    <label for="output_format">صيغة التحويل:</label>
+    <select name="output_format">
+        <option value="jpg">JPG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WEBP</option>
+        <option value="mp4">MP4</option>
+        <option value="mp3">MP3</option>
+    </select>
 
-      <div id="video-options" class="hidden">
-        <label for="video_format">صيغة الفيديو:</label>
-        <select name="video_format">
-          <option value="mp4">MP4</option>
-          <option value="webm">WEBM</option>
-        </select>
-      </div>
+    <label for="width">العرض (اختياري):</label>
+    <input type="number" name="width">
 
-      <button type="submit">تحويل</button>
-    </form>
-  </div>
+    <label for="height">الطول (اختياري):</label>
+    <input type="number" name="height">
 
-  <script>
-    const convertType = document.getElementById("convert_type");
-    const imageOptions = document.getElementById("image-options");
-    const videoOptions = document.getElementById("video-options");
+    <button type="submit">🔄 تحويل</button>
+</form>
 
-    convertType.addEventListener("change", function () {
-      if (this.value === "image") {
-        imageOptions.classList.remove("hidden");
-        videoOptions.classList.add("hidden");
-      } else if (this.value === "video") {
-        videoOptions.classList.remove("hidden");
-        imageOptions.classList.add("hidden");
-      } else {
-        imageOptions.classList.add("hidden");
-        videoOptions.classList.add("hidden");
-      }
-    });
-  </script>
+<!-- قسم Telegram Tools -->
+<form id="telegram-form" action="/telegram_convert" method="post" enctype="multipart/form-data" class="hidden">
+    <h2>أدوات تلغرام</h2>
+    <label for="file">اختر صورة أو فيديو:</label>
+    <input type="file" name="file" required>
+
+    <button type="submit">📥 تجهيز لتلغرام</button>
+</form>
+
+<script>
+    function toggleMode() {
+        const mode = document.getElementById("mode-select").value;
+        document.getElementById("custom-form").classList.toggle("hidden", mode !== "custom");
+        document.getElementById("telegram-form").classList.toggle("hidden", mode !== "telegram");
+    }
+</script>
+
 </body>
 </html>
