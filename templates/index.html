@@ -1,59 +1,53 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>محول الوسائط</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .section { margin-bottom: 30px; }
-        h2 { color: #333; }
-        form { margin-top: 10px; }
-        input, select, button { margin: 5px 0; padding: 8px; width: 200px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Media Converter</title>
 </head>
 <body>
-    <h1>محول الوسائط</h1>
+  <h1>📂 Media Converter</h1>
 
-    <div class="section">
-        <h2>تحويل الصور (Custom)</h2>
-        <form action="/convert_image" method="post" enctype="multipart/form-data">
-            <label>اختر صورة:</label><br />
-            <input type="file" name="image" required /><br />
-            <label>صيغة التحويل:</label><br />
-            <select name="format" required>
-                <option value="png">PNG</option>
-                <option value="jpeg">JPEG</option>
-                <option value="webp">WEBP</option>
-                <option value="jpg">JPG</option>
-            </select><br />
-            <label>العرض (اختياري):</label><br />
-            <input type="number" name="width" min="1" /><br />
-            <label>الارتفاع (اختياري):</label><br />
-            <input type="number" name="height" min="1" /><br />
-            <button type="submit">تحويل</button>
-        </form>
-    </div>
+  <!-- زر تبديل بين القسمين -->
+  <button onclick="showTab('custom')">Custom Converter</button>
+  <button onclick="showTab('telegram')">Telegram Tools</button>
 
-    <hr/>
+  <!-- قسم Custom -->
+  <div id="custom" style="display:block;">
+    <h2>Custom Image Converter</h2>
+    <form action="/convert_image" method="post" enctype="multipart/form-data">
+      <input type="file" name="image" required><br>
+      Format: 
+      <select name="format">
+        <option value="png">PNG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="webp">WEBP</option>
+      </select><br>
+      Width: <input type="number" name="width"><br>
+      Height: <input type="number" name="height"><br>
+      <button type="submit">Convert</button>
+    </form>
+  </div>
 
-    <div class="section">
-        <h2>تحويل صور تلغرام (Telegram Image)</h2>
-        <form action="/convert_tg_image" method="post" enctype="multipart/form-data">
-            <input type="file" name="image" required />
-            <button type="submit">رفع وتحويل تلقائي</button>
-        </form>
-        <p>يتم تحويل الصور إلى WEBP وأبعاد تصل حتى 512x512 تلقائياً.</p>
-    </div>
+  <!-- قسم Telegram -->
+  <div id="telegram" style="display:none;">
+    <h2>Telegram Image to WEBP</h2>
+    <form action="/convert_tg_image" method="post" enctype="multipart/form-data">
+      <input type="file" name="image" required><br>
+      <button type="submit">Upload</button>
+    </form>
 
-    <hr/>
+    <h2>Telegram Video to WEBM (3s)</h2>
+    <form action="/convert_tg_video" method="post" enctype="multipart/form-data">
+      <input type="file" name="video" required><br>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
 
-    <div class="section">
-        <h2>تحويل فيديوهات تلغرام (Telegram Video)</h2>
-        <form action="/convert_tg_video" method="post" enctype="multipart/form-data">
-            <input type="file" name="video" required />
-            <button type="submit">رفع وتحويل تلقائي</button>
-        </form>
-        <p>يتم تحويل الفيديوهات إلى WEBM بمدة 3 ثواني وأبعاد تناسب تلغرام تلقائياً.</p>
-    </div>
+  <script>
+    function showTab(tab) {
+      document.getElementById('custom').style.display = (tab === 'custom') ? 'block' : 'none';
+      document.getElementById('telegram').style.display = (tab === 'telegram') ? 'block' : 'none';
+    }
+  </script>
 </body>
 </html>
