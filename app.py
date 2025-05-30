@@ -1,88 +1,70 @@
-from flask import Flask, request, send_file, jsonify, render_template
-from moviepy.editor import VideoFileClip
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from PIL import Image
-import io
 import os
+import moviepy.editor as mp
+import uuid
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_image(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['jpg', 'jpeg', 'png', 'webp']
+
+def allowed_video(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['mp4', 'mov', 'avi', 'mkv', 'webm']
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/convert/custom', methods=['POST'])
-def convert_custom():
-    try:
-        file = request.files['file']
-        target_format = request.form.get('format', '').lower()
-        width = request.form.get('width')
-        height = request.form.get('height')
+@app.route('/convert/<mode>', methods=['POST'])
+def convert(mode):
+    file = request.files.get('file')
+    if not file:
+        return 'No file uploaded', 400
 
-        if file.content_type.startswith('image'):
-            img = Image.open(file.stream)
-            # تعديل أبعاد الصورة لو محددة
+    filename = f"{uuid.uuid4().hex}_{file.filename}"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
+
+    if mode == 'custom':
+        output_format = request.form.get('format')
+        width = int(request.form.get('width')) if request.form.get('width') else None
+        height = int(request.form.get('height')) if request.form.get('height') else None
+
+        if allowed_image(file.filename):
+            im = Image.open(filepath)
             if width and height:
-                try:
-                    width = int(width)
-                    height = int(height)
-                    img = img.resize((width, height), Image.ANTIALIAS)
-                except Exception:
-                    pass
-
-            output = io.BytesIO()
-            if target_format not in ['webp', 'png', 'jpg', 'jpeg']:
-                return jsonify({'error': 'Unsupported image format'}), 400
-
-            save_format = 'JPEG' if target_format in ['jpg', 'jpeg'] else target_format.upper()
-            img.save(output, format=save_format)
-            output.seek(0)
-            return send_file(output, mimetype=f'image/{target_format}')
-
+                im = im.resize((width, height))
+            output_path = os.path.join(UPLOAD_FOLDER, f"converted.{output_format}")
+            im.save(output_path, format=output_format.upper())
+        elif allowed_video(file.filename):
+            clip = mp.VideoFileClip(filepath)
+            output_path = os.path.join(UPLOAD_FOLDER, f"converted.{output_format}")
+            clip.write_videofile(output_path, codec='libx264')
         else:
-            return jsonify({'error': 'Only image files supported in Custom section'}), 400
+            return 'Unsupported file type for custom', 400
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/convert/telegram', methods=['POST'])
-def convert_telegram():
-    try:
-        file = request.files['file']
-
-        if file.content_type.startswith('image'):
-            img = Image.open(file.stream)
-            # تحويل الصورة إلى webp بحجم 512x512 أو أقل مع الحفاظ على النسبة
-            max_size = (512, 512)
-            img.thumbnail(max_size, Image.ANTIALIAS)
-
-            output = io.BytesIO()
-            img.save(output, format='WEBP')
-            output.seek(0)
-            return send_file(output, mimetype='image/webp')
-
-        elif file.content_type.startswith('video'):
-            video = VideoFileClip(file.stream)
-            # اقتطاع الفيديو إلى 3 ثواني فقط لو الفيديو أطول
-            if video.duration > 3:
-                video = video.subclip(0, 3)
-
-            output = io.BytesIO()
-            temp_filename = "temp_output.mp4"
-            video.write_videofile(temp_filename, codec='libx264', audio_codec='aac', verbose=False, logger=None)
-            with open(temp_filename, "rb") as f:
-                output.write(f.read())
-            output.seek(0)
-            os.remove(temp_filename)
-
-            return send_file(output, mimetype='video/mp4')
-
+    elif mode == 'telegram':
+        if allowed_image(file.filename):
+            im = Image.open(filepath)
+            im.thumbnail((512, 512))
+            output_path = os.path.join(UPLOAD_FOLDER, 'telegram_image.webp')
+            im.save(output_path, format='WEBP')
+        elif allowed_video(file.filename):
+            clip = mp.VideoFileClip(filepath)
+            subclip = clip.subclip(0, min(3, clip.duration))
+            subclip = subclip.resize(height=512) if clip.h > 512 else subclip
+            output_path = os.path.join(UPLOAD_FOLDER, 'telegram_video.webm')
+            subclip.write_videofile(output_path, codec='libvpx', audio=False)
         else:
-            return jsonify({'error': 'Unsupported file type in Telegram section'}), 400
+            return 'Unsupported file type for telegram', 400
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    else:
+        return 'Invalid conversion mode', 400
 
+    return send_file(output_path, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=10000)
+    app.run(debug=True)
